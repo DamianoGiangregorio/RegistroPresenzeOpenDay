@@ -1,24 +1,138 @@
 <!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Maradona</title>
-	<script type="text/javascript">		
-		function ShowTitle(){
-			let p = document.getElementById("didascalia");
-			p.innerHTML = "User Interface";
-		}
+<html lang="it">
+  <head>
+    <title>Openday Check - Verifica Presenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="home-container">
+      <nav class="navigation-wrapper">
+        <div class="navigation-container">
+          <div class="navigation-left">
+            <a href="index.html" class="navigation-logo-link">
+              <span class="navigation-logo-text">Openday Check</span>
+            </a>
+          </div>
+          <div class="navigation-right">
+            <img src="logo.png" alt="Logo Scuola" class="school-logo" />
+          </div>
+        </div>
+      </nav>
 
-		function clearCaption(){
-			let p = document.getElementById("didascalia");
-			p.innerHTML = "";
-		}
-	</script>
-</head>
-<body>
-	<!-- Quando passi sopra l’immagine, compare il testo sotto -->
-	<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Argentina_celebrando_copa_%28cropped%29.jpg/250px-Argentina_celebrando_copa_%28cropped%29.jpg" alt="Maradona" onmouseover="ShowTitle();" onmouseout="clearCaption();">
-	<p id="didascalia"></p>
-</body>
+      <section id="hero" class="hero">
+        <div class="hero-panel">
+          <div class="hero-content">
+            <h1 class="home-hero-title">Verifica Presenza Openday</h1>
+            <p class="home-hero-subtitle">
+              Conferma la tua partecipazione in pochi secondi: inserisci i
+              tuoi dati per registrare la presenza all'evento. Sistema sicuro,
+              immediato e conforme alle procedure scolastiche.
+            </p>
+            <form id="hero-form" role="form" aria-label="Form di verifica presenza" class="hero-form">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="hero-nome">Nome</label>
+                  <input
+                    type="text"
+                    id="hero-nome"
+                    name="nome"
+                    required
+                    placeholder="Inserisci il tuo nome"
+                  />
+                </div>
+                <div class="form-field">
+                  <label for="hero-cognome">Cognome</label>
+                  <input
+                    type="text"
+                    id="hero-cognome"
+                    name="cognome"
+                    required
+                    placeholder="Inserisci il tuo cognome"
+                  />
+                </div>
+                <div class="form-field">
+                  <label for="hero-classe">Classe</label>
+                  <input
+                    type="text"
+                    id="hero-classe"
+                    name="classe"
+                    required
+                    placeholder="Inserisci la tua classe"
+                  />
+                </div>
+                <div class="form-field">
+                  <label for="hero-codice">Codice di verifica</label>
+                  <input
+                    type="text"
+                    id="hero-codice"
+                    name="codice"
+                    required
+                    placeholder="Inserisci il codice"
+                  />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg" onclick="SendData();">
+                Invia
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="process" class="process-section">
+        <div class="process-container">
+          <div class="process-timeline">
+            <h2 class="section-title">Come funziona</h2>
+            <ol class="steps-list">
+              <li class="step-card">
+                <div class="step-marker"><span>1</span></div>
+                <div class="step-content">
+                  <h3 class="step-title">Compila i dati</h3>
+                  <p class="step-description">
+                    Inserisci Nome, Cognome e Classe esattamente come
+                    riportati negli elenchi scolastici per garantire la
+                    corretta associazione.
+                  </p>
+                </div>
+              </li>
+              <li class="step-card">
+                <div class="step-marker"><span>2</span></div>
+                <div class="step-content">
+                  <h3 class="step-title">Inserisci il Codice di verifica</h3>
+                  <p class="step-description">
+                    Digita il codice fornito all'arrivo o ricevuto via
+                    comunicazione ufficiale; il campo è obbligatorio per
+                    convalidare la presenza.
+                  </p>
+                </div>
+              </li>
+              <li class="step-card">
+                <div class="step-marker"><span>3</span></div>
+                <div class="step-content">
+                  <h3 class="step-title">Controlla i dati</h3>
+                  <p class="step-description">
+                    Verifica rapidamente che tutti i campi siano corretti
+                    prima dell'invio; campi errati potrebbero ritardare la
+                    registrazione.
+                  </p>
+                </div>
+              </li>
+              <li class="step-card">
+                <div class="step-marker"><span>4</span></div>
+                <div class="step-content">
+                  <h3 class="step-title">Invia</h3>
+                  <p class="step-description">
+                    Premi il pulsante Invia. Riceverai una conferma visiva
+                    immediata della registrazione avvenuta con successo.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
 </html>
