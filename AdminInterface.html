@@ -4,21 +4,76 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Maradona</title>
-	<script type="text/javascript">		
-		function ShowTitle(){
-			let p = document.getElementById("didascalia");
-			p.innerHTML = "Admin Interface";
-		}
-
-		function clearCaption(){
-			let p = document.getElementById("didascalia");
-			p.innerHTML = "";
-		}
-	</script>
+	<link rel="stylesheet" href="./IndexStyle.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Nunito+Sans:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-	<!-- Quando passi sopra l’immagine, compare il testo sotto -->
-	<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Argentina_celebrando_copa_%28cropped%29.jpg/250px-Argentina_celebrando_copa_%28cropped%29.jpg" alt="Maradona" onmouseover="ShowTitle();" onmouseout="clearCaption();">
-	<p id="didascalia"></p>
+    <div class="home-container">
+      <nav class="navigation-wrapper">
+        <div class="navigation-container">
+          <div class="navigation-left">
+            <a href="index.html" class="navigation-logo-link">
+              <span class="navigation-logo-text">Openday Check</span>
+            </a>
+          </div>
+          <div class="navigation-right">
+            <img src="logo.png" alt="Logo Scuola" class="school-logo" />
+          </div>
+        </div>
+      </nav>
+	</div>
+<div class="container">
+        <h1>Caricamento File</h1>
+        <p class="subtitle">Clicca il pulsante per aprire l'area di caricamento</p>
+        
+        <button id="openUploadModal" class="btn btn-primary btn-lg">
+            <span class="button-icon">📤</span>
+            Carica File
+        </button>
+    </div>
+
+    <!-- Modal per il caricamento file -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="section-title">Carica i tuoi file</h2>
+                <button id="closeModal" class="close-button" aria-label="Chiudi">
+                    &times;
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-content">
+                        <div class="drop-zone-icon">📁</div>
+                        <h3>Trascina i file qui</h3>
+                        <p>oppure <span class="drop-zone-click">clicca per selezionare i file</span></p>
+                        <p class="drop-zone-info">Supportiamo immagini, documenti, PDF (max 10MB per file)</p>
+                    </div>
+                    <input type="file" id="fileInput" multiple style="display: none;">
+                </div>
+                
+                <div id="fileList" class="file-list">
+                    <p class="empty-message">Nessun file selezionato</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="submitFiles" class="btn btn-primary" disabled>
+                    <span class="button-icon">🚀</span>
+                    Carica File Selezionati
+                </button>
+                <button id="cancelUpload" class="btn">
+                    <span class="button-icon">✕</span>
+                    Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="uploadStatus" class="upload-status"></div>
 </body>
 </html>

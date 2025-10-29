@@ -13,14 +13,15 @@ function VerificaPresenza() {
     let nuovo = {
         nome: nome.value,
         cognome: cognome.value,
-        classe: classe.value,
-        data: new Date().toLocaleDateString('it-IT').substring(0,5)
+        classe: classe.value
     };
 
     Students = ReadData();
-    if(CalcolaCodice(nuovo) === CalcolaCodice(Students.find(studente => studente.nome === nuovo.nome &&studente.cognome === nuovo.cognome 
-        &&studente.classe === nuovo.classe &&studente.data === nuovo.data)))
-        return 
-
+    if(!(CalcolaCodice(nuovo) === CalcolaCodice(Students.find(studente => studente.nome === nuovo.nome &&studente.cognome === nuovo.cognome 
+        &&studente.classe === nuovo.classe))))
+            alert("Generalità non corrette riprovare");
+    else{
+        nuovo.presenza.presente = true;
+        SaveData(Students);
+    }
 }
-
