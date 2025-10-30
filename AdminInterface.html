@@ -1,79 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Maradona</title>
-	<link rel="stylesheet" href="./IndexStyle.css">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Nunito+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Openday Check</title>
+  <link rel="stylesheet" href="AdminStyle.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Nunito+Sans:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="home-container">
-      <nav class="navigation-wrapper">
-        <div class="navigation-container">
-          <div class="navigation-left">
-            <a href="index.html" class="navigation-logo-link">
-              <span class="navigation-logo-text">Openday Check</span>
-            </a>
-          </div>
-          <div class="navigation-right">
-            <img src="logo.png" alt="Logo Scuola" class="school-logo" />
-          </div>
-        </div>
-      </nav>
-	</div>
-<div class="container">
-        <h1>Caricamento File</h1>
-        <p class="subtitle">Clicca il pulsante per aprire l'area di caricamento</p>
-        
-        <button id="openUploadModal" class="btn btn-primary btn-lg">
-            <span class="button-icon">📤</span>
-            Carica File
-        </button>
+  <!-- Navigazione -->
+  <nav class="navigation-wrapper">
+    <div class="navigation-container">
+      <div class="navigation-left">
+        <a href="index.html" class="navigation-logo-link">
+          <span class="navigation-logo-text">Openday Check</span>
+        </a>
+      </div>
+      <div class="navigation-right">
+        <img src="logo.png" alt="Logo Scuola" class="school-logo" />
+      </div>
     </div>
+  </nav>
 
-    <!-- Modal per il caricamento file -->
-    <div id="uploadModal" class="modal">
-        <div class="modal-overlay" id="modalOverlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="section-title">Carica i tuoi file</h2>
-                <button id="closeModal" class="close-button" aria-label="Chiudi">
-                    &times;
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="drop-zone" id="dropZone">
-                    <div class="drop-zone-content">
-                        <div class="drop-zone-icon">📁</div>
-                        <h3>Trascina i file qui</h3>
-                        <p>oppure <span class="drop-zone-click">clicca per selezionare i file</span></p>
-                        <p class="drop-zone-info">Supportiamo immagini, documenti, PDF (max 10MB per file)</p>
-                    </div>
-                    <input type="file" id="fileInput" multiple style="display: none;">
-                </div>
-                
-                <div id="fileList" class="file-list">
-                    <p class="empty-message">Nessun file selezionato</p>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button id="submitFiles" class="btn btn-primary" disabled>
-                    <span class="button-icon">🚀</span>
-                    Carica File Selezionati
-                </button>
-                <button id="cancelUpload" class="btn">
-                    <span class="button-icon">✕</span>
-                    Annulla
-                </button>
-            </div>
-        </div>
+  <!-- Sezione Alunni -->
+  <section class="hero">
+    <div class="hero-panel">
+      <div class="hero-content">
+        <h1 class="home-hero-title">Sezione Alunni</h1>
+        <p class="home-hero-subtitle">Qui verranno visualizzati gli alunni per data.</p>
+        <div id="students-container"></div>
+      </div>
     </div>
+  </section>
 
-    <div id="uploadStatus" class="upload-status"></div>
+  <!-- Sezione Upload Excel -->
+  <section class="process-section">
+    <div class="process-container">
+      <h2 class="section-title">Carica dati da file Excel</h2>
+      <label class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept=".xlsx,.csv">
+        <div class="drop-zone-content">
+          <div class="drop-zone-icon">📂</div>
+          <h3>Trascina il file qui</h3>
+          <p>oppure clicca per selezionarlo</p>
+          <span class="drop-zone-info">Supportati: .xlsx, .csv</span>
+        </div>
+      </label>
+    </div>
+  </section>
+
+  <!-- Librerie -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

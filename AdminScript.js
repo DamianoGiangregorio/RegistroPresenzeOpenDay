@@ -1,259 +1,113 @@
-// Elementi DOM
-const openUploadModalButton = document.getElementById('openUploadModal');
-const uploadModal = document.getElementById('uploadModal');
-const modalOverlay = document.getElementById('modalOverlay');
-const closeModalButton = document.getElementById('closeModal');
-const cancelUploadButton = document.getElementById('cancelUpload');
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const fileList = document.getElementById('fileList');
-const submitFilesButton = document.getElementById('submitFiles');
-const uploadStatus = document.getElementById('uploadStatus');
+// script.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Array per memorizzare i file selezionati
-let selectedFiles = [];
+// 🔹 Config Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBhufU5KjkXXsih8qlgnwTYGEx3cYTY4zk",
+  authDomain: "openday-check.firebaseapp.com",
+  projectId: "openday-check",
+  storageBucket: "openday-check.firebasestorage.app",
+  messagingSenderId: "760148739687",
+  appId: "1:760148739687:web:51046ebb13e2342642f6c2"
+};
 
-// Apri il modal
-openUploadModalButton.addEventListener('click', () => {
-    uploadModal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+// Inizializza Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const studentsCollection = collection(db, "students");
+
+// 🔹 Elementi DOM
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const studentContainer = document.getElementById('students-container');
+
+// 🔹 Eventi Drag&Drop
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { 
+    e.preventDefault(); 
+    dropZone.classList.remove('drag-over'); 
+    handleFile(e.dataTransfer.files[0]); 
 });
+fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
 
-// Chiudi il modal
-function closeModal() {
-    uploadModal.style.display = 'none';
-    document.body.style.overflow = '';
-}
+// 🔹 Funzione per leggere file Excel e salvare su Firebase
+async function handleFile(file) {
+    if (!file) return;
 
-closeModalButton.addEventListener('click', closeModal);
-cancelUploadButton.addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', closeModal);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-// Click sull'area di drop per aprire la selezione file
-dropZone.addEventListener('click', (e) => {
-    // Impedisce che il click si propaghi al modal overlay
-    e.stopPropagation();
-    fileInput.click();
-});
-
-// Gestione selezione file tramite input
-fileInput.addEventListener('change', (e) => {
-    handleFiles(e.target.files);
-});
-
-// Gestione drag & drop
-dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('drag-over');
-});
-
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('drag-over');
-});
-
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    
-    if (e.dataTransfer.files.length) {
-        handleFiles(e.dataTransfer.files);
-    }
-});
-
-// Funzione per gestire i file selezionati
-function handleFiles(files) {
-    // Aggiungi i nuovi file all'array
-    Array.from(files).forEach(file => {
-        // Verifica che il file non sia già stato aggiunto
-        const isDuplicate = selectedFiles.some(
-            existingFile => existingFile.name === file.name && existingFile.size === file.size
-        );
-        
-        // Verifica dimensione massima (10MB)
-        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-        if (file.size > maxSize) {
-            showStatus(`Il file "${file.name}" supera la dimensione massima di 10MB`, 'error');
+        if (rows.length < 2) {
+            alert("File Excel non valido: deve contenere almeno una riga data + una riga alunni");
             return;
         }
-        
-        if (!isDuplicate) {
-            selectedFiles.push(file);
-        } else {
-            showStatus(`Il file "${file.name}" è già stato selezionato`, 'info');
+
+        // Prima riga contiene la data (es. "30/11/2025")
+        const defaultDate = rows[0][0];
+        const formattedDate = formatDate(defaultDate);
+
+        // Inizia dal secondo elemento (riga 1) dove ci sono gli alunni
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.length < 3) continue; // Salta righe incomplete
+            const student = {
+                opendayDate: formattedDate,
+                nome: row[0],
+                cognome: row[1],
+                classe: row[2]
+            };
+            await addDoc(studentsCollection, student);
         }
-    });
-    
-    // Aggiorna la visualizzazione
-    updateFileList();
-    
-    // Abilita il pulsante di invio se ci sono file
-    submitFilesButton.disabled = selectedFiles.length === 0;
+
+        alert("Dati caricati su Firestore!");
+        loadStudents(); // Ricarica dati
+    };
+    reader.readAsArrayBuffer(file);
 }
 
-// Aggiorna la lista dei file visualizzata
-function updateFileList() {
-    fileList.innerHTML = '';
-    
-    if (selectedFiles.length === 0) {
-        fileList.innerHTML = '<p class="empty-message">Nessun file selezionato</p>';
-        return;
-    }
-    
-    selectedFiles.forEach((file, index) => {
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        
-        const fileSize = formatFileSize(file.size);
-        const fileType = getFileType(file.name);
-        
-        fileItem.innerHTML = `
-            <div class="file-info">
-                <span class="file-icon-small">${getFileIcon(fileType)}</span>
-                <div class="file-details">
-                    <div class="file-name" title="${file.name}">${file.name}</div>
-                    <div class="file-meta">
-                        <span class="file-size">${fileSize}</span>
-                        <span class="file-type">${fileType.toUpperCase()}</span>
-                    </div>
-                </div>
-            </div>
-            <button class="remove-file" data-index="${index}" aria-label="Rimuovi file">
-                ×
-            </button>
-        `;
-        
-        fileList.appendChild(fileItem);
+// 🔹 Converte la data in formato YYYY-MM-DD
+function formatDate(dateStr) {
+    const parts = dateStr.split(/[\/.-]/);
+    if (parts.length !== 3) return dateStr;
+    const [day, month, year] = parts;
+    return `${year.padStart(4,'0')}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+}
+
+// 🔹 Carica studenti da Firestore e visualizza per data
+async function loadStudents() {
+    const snapshot = await getDocs(studentsCollection);
+    const allStudents = snapshot.docs.map(doc => doc.data());
+
+    studentContainer.innerHTML = "";
+    const grouped = {};
+
+    allStudents.forEach(stu => {
+        if (!grouped[stu.opendayDate]) grouped[stu.opendayDate] = [];
+        grouped[stu.opendayDate].push(stu);
     });
-    
-    // Aggiungi event listener per i pulsanti di rimozione
-    document.querySelectorAll('.remove-file').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const index = parseInt(this.getAttribute('data-index'));
-            removeFile(index);
+
+    const dates = Object.keys(grouped).sort((a,b) => new Date(a)-new Date(b));
+
+    dates.forEach(date => {
+        const divDate = document.createElement('h3');
+        divDate.textContent = `Data: ${date}`;
+        studentContainer.appendChild(divDate);
+
+        grouped[date].forEach(stu => {
+            const div = document.createElement('div');
+            div.textContent = `${stu.nome} ${stu.cognome} (${stu.classe})`;
+            studentContainer.appendChild(div);
         });
     });
 }
 
-// Rimuove un file dalla lista
-function removeFile(index) {
-    selectedFiles.splice(index, 1);
-    updateFileList();
-    
-    // Disabilita il pulsante di invio se non ci sono più file
-    submitFilesButton.disabled = selectedFiles.length === 0;
-}
-
-// Formatta la dimensione del file in modo leggibile
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// Determina il tipo di file in base all'estensione
-function getFileType(filename) {
-    const extension = filename.split('.').pop().toLowerCase();
-    
-    const typeMap = {
-        // Immagini
-        'jpg': 'immagine', 'jpeg': 'immagine', 'png': 'immagine', 
-        'gif': 'immagine', 'bmp': 'immagine', 'svg': 'immagine', 'webp': 'immagine',
-        
-        // Documenti
-        'pdf': 'documento', 'doc': 'documento', 'docx': 'documento',
-        'txt': 'documento', 'rtf': 'documento',
-        
-        // Fogli di calcolo
-        'xls': 'foglio', 'xlsx': 'foglio', 'csv': 'foglio',
-        
-        // Presentazioni
-        'ppt': 'presentazione', 'pptx': 'presentazione',
-        
-        // Archivi
-        'zip': 'archivio', 'rar': 'archivio', '7z': 'archivio', 'tar': 'archivio',
-        
-        // Altro
-        'mp3': 'audio', 'wav': 'audio', 'mp4': 'video', 'avi': 'video'
-    };
-    
-    return typeMap[extension] || 'file';
-}
-
-// Restituisce l'icona appropriata per il tipo di file
-function getFileIcon(fileType) {
-    const iconMap = {
-        'immagine': '🖼️',
-        'documento': '📄',
-        'foglio': '📊',
-        'presentazione': '📑',
-        'archivio': '📦',
-        'audio': '🎵',
-        'video': '🎬',
-        'file': '📁'
-    };
-    
-    return iconMap[fileType] || '📁';
-}
-
-// Gestione dell'invio dei file
-submitFilesButton.addEventListener('click', () => {
-    if (selectedFiles.length === 0) {
-        showStatus('Seleziona almeno un file da caricare', 'error');
-        return;
-    }
-    
-    // Simula l'invio dei file (in un caso reale, qui andrebbe una chiamata AJAX)
-    simulateUpload();
-});
-
-// Funzione per simulare l'upload (sostituire con codice reale)
-function simulateUpload() {
-    submitFilesButton.disabled = true;
-    submitFilesButton.innerHTML = '<span class="button-icon">⏳</span> Caricamento in corso...';
-    
-    // Simula un ritardo di caricamento
-    setTimeout(() => {
-        showStatus(`Caricamento completato! ${selectedFiles.length} file caricati con successo.`, 'success');
-        
-        // Resetta il form
-        selectedFiles = [];
-        updateFileList();
-        fileInput.value = '';
-        submitFilesButton.innerHTML = '<span class="button-icon">🚀</span> Carica File Selezionati';
-        submitFilesButton.disabled = true;
-        
-        // Chiudi il modal dopo 2 secondi
-        setTimeout(() => {
-            closeModal();
-        }, 2000);
-    }, 2000);
-}
-
-// Mostra messaggi di stato
-function showStatus(message, type) {
-    uploadStatus.textContent = message;
-    uploadStatus.className = 'upload-status ' + type;
-    
-    // Nasconde il messaggio dopo 5 secondi
-    setTimeout(() => {
-        uploadStatus.className = 'upload-status';
-    }, 5000);
-}
-
-// Gestione della tastiera per accessibilità
-document.addEventListener('keydown', (e) => {
-    // ESC per chiudere il modal
-    if (e.key === 'Escape' && uploadModal.style.display === 'block') {
-        closeModal();
-    }
-});
-
-// Inizializzazione
-document.addEventListener('DOMContentLoaded', () => {
-    updateFileList();
-});
+// 🔹 Carica studenti al caricamento pagina
+loadStudents();
