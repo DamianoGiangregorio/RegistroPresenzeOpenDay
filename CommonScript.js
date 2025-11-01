@@ -24,6 +24,6 @@ async function AddData(nuovo) {
     saveStudentData(Students);
 }
 
-function CalcolaCodice() {
-
+export default function CalcolaCodice(alunno) {
+    return "ciao";
 }
