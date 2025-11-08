@@ -1,4 +1,6 @@
-import CalcolaCodice from "./CommonScript.js";
+import { CalcolaCodice } from "./CommonScript.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Configurazione Firebase
 const firebaseConfig = {
@@ -10,9 +12,9 @@ const firebaseConfig = {
   appId: "1:760148739687:web:51046ebb13e2342642f6c2"
 };
 
-// Inizializza Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Inizializza Firebase (modulare)
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("hero-form");
@@ -22,13 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
 async function SendData(event) {
   event.preventDefault();
 
-  // Prendi i valori dal form e metti tutto in minuscolo e trim
   const nome = document.getElementById("hero-nome").value.trim().toLowerCase();
   const cognome = document.getElementById("hero-cognome").value.trim().toLowerCase();
   const classe = document.getElementById("hero-classe").value.trim().toLowerCase();
-  const codiceInserito = document.getElementById("hero-codice").value.trim();
+  const codiceInseritoRaw = document.getElementById("hero-codice").value;
 
-  // Ottieni la data di oggi in formato d/m/yyyy
+  // Normalizzo codice inserito: minuscolo e trim
+  const codiceInserito = codiceInseritoRaw.trim().toLowerCase();
+
+  // Data oggi in formato d/m/yyyy (senza leading zero)
   const oggi = new Date();
   const giorno = oggi.getDate();
   const mese = oggi.getMonth() + 1;
@@ -36,12 +40,13 @@ async function SendData(event) {
   const dataOggi = `${giorno}/${mese}/${anno}`;
 
   try {
-    const snapshot = await db.collection("students").get();
+    const studentsCol = collection(db, "students");
+    const snapshot = await getDocs(studentsCol);
 
     let recordTrovato = null;
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
 
       const nomeDB = (data.nome || "").toLowerCase().trim();
       const cognomeDB = (data.cognome || "").toLowerCase().trim();
@@ -54,7 +59,7 @@ async function SendData(event) {
         classeDB === classe &&
         opendayDateDB === dataOggi.toLowerCase()
       ) {
-        recordTrovato = { id: doc.id, data };
+        recordTrovato = { id: docSnap.id, data };
       }
     });
 
@@ -63,20 +68,22 @@ async function SendData(event) {
       return;
     }
 
-    const codiceCalcolato = CalcolaCodice(
-      recordTrovato.data.nome.toLowerCase().trim(),
-      recordTrovato.data.cognome.toLowerCase().trim(),
-      recordTrovato.data.classe.toLowerCase().trim(),
-      recordTrovato.data.opendayDate.toLowerCase().trim()
-    );
+    // Calcola codice con la funzione corretta (CalcolaCodice ora prende un oggetto)
+    let codiceCalcolato = CalcolaCodice(recordTrovato.data);
+
+    // Normalizzo codice calcolato per confronto (minuscolo e trim)
+    codiceCalcolato = codiceCalcolato.trim().toLowerCase();
+
 
     if (codiceCalcolato === codiceInserito) {
-      await db.collection("students").doc(recordTrovato.id).update({ presenza: true });
+      const studentDoc = doc(db, "students", recordTrovato.id);
+      await updateDoc(studentDoc, { presenza: true });
       alert("Presenza verificata con successo!");
     } else {
       alert("Codice di verifica errato. Controlla e riprova.");
     }
   } catch (error) {
+    console.error("Errore nel controllo dati:", error);
     alert("Errore nel controllo dati. Riprova più tardi.");
   }
 }

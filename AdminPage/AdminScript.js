@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import CalcolaCodice from '../CommonScript.js';
+import { CalcolaCodice } from '../CommonScript.js';
 
 // Config Firebase
 const firebaseConfig = {
@@ -51,8 +51,8 @@ fileInput.addEventListener('change', async (e) => {
           opendayDate: row.OpendayDate,
           presenza: false
         });
-      } catch {
-        // nessun log su errore inserimento
+      } catch(error) {
+        console.error("Errore durante inserimento documento:", error);
       }
     });
 
@@ -60,7 +60,8 @@ fileInput.addEventListener('change', async (e) => {
 
     alert("Caricamento dati terminato.");
     loadStudents();
-  } catch {
+  } catch(error) {
+    console.error("Errore durante la lettura del file Excel:", error);
     alert("Errore durante la lettura del file Excel.");
   }
 });
@@ -165,7 +166,8 @@ async function loadStudents() {
               await deleteDoc(doc(db, 'students', stu.id));
               alert("Studente eliminato.");
               loadStudents();
-            } catch {
+            } catch(error) {
+              console.error("Errore durante eliminazione studente:", error);
               alert("Errore durante eliminazione studente.");
             }
           }
@@ -193,11 +195,16 @@ async function loadStudents() {
     btnDeleteDate.addEventListener('click', async () => {
       const dateToDelete = selectDate.value;
       if (!confirm(`Eliminare tutti gli studenti della data ${dateToDelete}?`)) return;
-      const q = query(studentsCollection, where('opendayDate', '==', dateToDelete));
-      const querySnapshot = await getDocs(q);
-      await Promise.all(querySnapshot.docs.map(d => deleteDoc(doc(db, 'students', d.id))));
-      alert(`Eliminati tutti gli studenti della data ${dateToDelete}`);
-      loadStudents();
+      try {
+        const q = query(studentsCollection, where('opendayDate', '==', dateToDelete));
+        const querySnapshot = await getDocs(q);
+        await Promise.all(querySnapshot.docs.map(d => deleteDoc(doc(db, 'students', d.id))));
+        alert(`Eliminati tutti gli studenti della data ${dateToDelete}`);
+        loadStudents();
+      } catch(error) {
+        console.error("Errore durante eliminazione studenti per data:", error);
+        alert("Errore durante eliminazione studenti.");
+      }
     });
 
     showTable(dates[0]);
@@ -209,7 +216,8 @@ async function loadStudents() {
       window._selectedDate = selectDate.value;
     });
 
-  } catch {
+  } catch(error) {
+    console.error("Errore durante il caricamento degli studenti:", error);
     studentContainer.textContent = "Errore durante il caricamento degli studenti.";
   }
 }

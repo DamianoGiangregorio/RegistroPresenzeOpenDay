@@ -1,30 +1,31 @@
-function SaveData(students) {
-    localStorage.setItem('Students', JSON.stringify(students));
+export function SaveData(students) {
+  localStorage.setItem('Students', JSON.stringify(students));
 }
 
-async function ReadData() {
-    let Students = [];
-    try {
-        const response = await fetch('data.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        Students = await response.json();
-    } catch (error) {
-        console.error("Could not load student data:", error);
+export async function ReadData() {
+  let Students = [];
+  try {
+    const response = await fetch('data.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return Students;
+    Students = await response.json();
+  } catch (error) {
+    console.error("Could not load student data:", error);
+  }
+  return Students;
 }
 
-async function AddData(nuovo) {
-    let Students = ReadData();
+export async function AddData(nuovo) {
+  let Students = await ReadData();
 
-    Students.push(nuovo);
-    saveStudentData(Students);
+  Students.push(nuovo);
+  SaveData(Students);
 }
 
-export default function CalcolaCodice(alunno) {
-  const input = `${alunno.nome.toLowerCase().trim()}|${alunno.cognome.toLowerCase().trim()}|${alunno.classe.trim()}|${alunno.dataOpenDay.trim()}`;
+export function CalcolaCodice(alunno) {
+  const dataOpenDay = alunno.opendayDate || alunno.dataOpenDay || '';
+  const input = `${alunno.nome.toLowerCase().trim()}|${alunno.cognome.toLowerCase().trim()}|${alunno.classe.trim()}|${dataOpenDay.trim()}`;
   let hash = 5381;
   for (let i = 0; i < input.length; i++) {
     hash = ((hash << 5) + hash) + input.charCodeAt(i);
