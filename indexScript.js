@@ -64,7 +64,7 @@ async function SendData(event) {
     });
 
     if (!recordTrovato) {
-      alert("Nessun record trovato con i dati forniti per la data di oggi.");
+      alert("Nessun record trovato con i dati forniti per la data di oggi.\nProva a verificare che i dati siano scritti correttamente");
       return;
     }
 
@@ -83,7 +83,6 @@ async function SendData(event) {
       alert("Codice di verifica errato. Controlla e riprova.");
     }
   } catch (error) {
-    console.error("Errore nel controllo dati:", error);
     alert("Errore nel controllo dati. Riprova più tardi.");
   }
 }
