@@ -24,5 +24,10 @@ async function AddData(nuovo) {
 }
 
 export default function CalcolaCodice(alunno) {
-    return "ciao";
+  const input = `${alunno.nome.toLowerCase().trim()}|${alunno.cognome.toLowerCase().trim()}|${alunno.classe.trim()}|${alunno.dataOpenDay.trim()}`;
+  let hash = 5381;
+  for (let i = 0; i < input.length; i++) {
+    hash = ((hash << 5) + hash) + input.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16);
 }
