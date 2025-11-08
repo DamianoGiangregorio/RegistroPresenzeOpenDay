@@ -191,6 +191,48 @@ body {
   color: var(--color-on-surface-secondary);
 }
 
+/* Bottone generico */
+.btn {
+  gap: var(--spacing-sm);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  display: inline-flex;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1rem;
+  box-shadow: var(--shadow-level-1);
+  transition: all 0.2s ease;
+  align-items: center;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.55;
+  user-select: none;
+  white-space: nowrap;
+  border-radius: var(--border-radius-md);
+  justify-content: center;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+/* Bottone primario */
+.btn-primary {
+  color: white;
+  box-shadow: var(--shadow-level-1);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+}
+
+/* Hover effetto */
+.btn-primary:hover {
+  border-color: #055d5d;
+  background-color: #055d5d;
+}
+
+/* Bottone grande */
+.btn-lg {
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+
 /* Media Queries */
 @media (max-width: 991px) {
   .hero-panel {
@@ -237,4 +279,16 @@ body {
   .home-hero-subtitle {
     font-size: 0.875rem;
   }
+}
+
+.download-section {
+  padding: 3rem var(--spacing-lg);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.download-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-lg);
 }

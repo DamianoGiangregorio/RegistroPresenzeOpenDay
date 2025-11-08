@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Openday Check</title>
-  <link rel="stylesheet" href="AdminStyle.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Nunito+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="AdminStyle.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Nunito+Sans:wght@400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
   <!-- Navigazione -->
@@ -31,6 +31,9 @@
         <h1 class="home-hero-title">Sezione Alunni</h1>
         <p class="home-hero-subtitle">Qui verranno visualizzati gli alunni per data.</p>
         <div id="students-container"></div>
+        <button id="download-excel" class="btn btn-primary btn-lg" style="margin-top:15px;">
+          Scarica dati in Excel (.xlsx)
+        </button>
       </div>
     </div>
   </section>
@@ -40,21 +43,32 @@
     <div class="process-container">
       <h2 class="section-title">Carica dati da file Excel</h2>
       <label class="drop-zone" id="drop-zone">
-        <input type="file" id="file-input" accept=".xlsx,.csv">
+        <input type="file" id="fileInput" accept=".xlsx" />
         <div class="drop-zone-content">
           <div class="drop-zone-icon">📂</div>
           <h3>Trascina il file qui</h3>
           <p>oppure clicca per selezionarlo</p>
-          <span class="drop-zone-info">Supportati: .xlsx, .csv</span>
+          <span class="drop-zone-info">Supportato: .xlsx</span>
         </div>
       </label>
     </div>
   </section>
 
+  <!-- Sezione Download File -->
+  <section class="download-section">
+    <div class="process-container">
+      <h2 class="section-title">Scarica file di esempio</h2>
+      <h4>(Fare attenzione che nella colonna OpendayDate il formato sia testo e non data)</h4>
+      <div class="download-btn-wrapper">
+        <button id="download-example" class="btn btn-primary btn-lg">
+          Scarica esempio (.xlsx)
+        </button>
+      </div>
+    </div>
+  </section>
+
   <!-- Librerie -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script type="module" src="./AdminScript.js"></script>
 </body>
 </html>

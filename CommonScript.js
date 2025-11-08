@@ -2,7 +2,6 @@ function SaveData(students) {
     localStorage.setItem('Students', JSON.stringify(students));
 }
 
-
 async function ReadData() {
     let Students = [];
     try {
