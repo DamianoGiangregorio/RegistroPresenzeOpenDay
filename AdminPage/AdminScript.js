@@ -21,7 +21,7 @@ const studentContainer = document.getElementById('students-container');
 const fileInput = document.getElementById('fileInput');
 const downloadExcelBtn = document.getElementById('download-excel');
 
-// ======== LETTURA FILE XLSX ==========
+// ======== LETTURA FILE XLSX ========== 
 
 fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
@@ -32,23 +32,35 @@ fileInput.addEventListener('change', async (e) => {
     const workbook = XLSX.read(data, { type: "array" });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { raw: false });
 
     if (rows.length === 0) {
       alert("Il file Excel è vuoto o non valido.");
       return;
     }
 
-    const promises = rows.map(async (row, index) => {
+    const promises = rows.map(async (row) => {
       if (!row.Nome || !row.Cognome || !row.Classe || !row.OpendayDate) {
-        return null; // salto righe incomplete senza warning
+        return null;
       }
+
       try {
+        const nome = String(row.Nome).trim();
+
+        // ✅ CORREZIONE DEFINITIVA COGNOME VERO/FALSO
+        const cognome = (typeof row.Cognome === 'boolean')
+          ? (row.Cognome ? 'VERO' : 'FALSO')
+          : String(row.Cognome).trim();
+
+        const classe = String(row.Classe).trim();
+        const opendayDate = String(row.OpendayDate).trim();
+
         await addDoc(studentsCollection, {
-          nome: row.Nome,
-          cognome: row.Cognome,
-          classe: row.Classe,
-          opendayDate: row.OpendayDate,
+          nome,
+          cognome,
+          classe,
+          opendayDate,
           presenza: false
         });
       } catch(error) {
@@ -79,7 +91,6 @@ async function loadStudents() {
 
     const allStudents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Raggruppa per data
     const grouped = {};
     allStudents.forEach(stu => {
       if (!stu.opendayDate) return;
@@ -91,7 +102,6 @@ async function loadStudents() {
 
     studentContainer.innerHTML = '';
 
-    // SELECT per scegliere data
     const selectDate = document.createElement('select');
     selectDate.id = 'select-date';
     selectDate.style.marginBottom = '10px';
@@ -103,7 +113,6 @@ async function loadStudents() {
     });
     studentContainer.appendChild(selectDate);
 
-    // Pulsante per eliminare tutti gli studenti di una data
     const btnDeleteDate = document.createElement('button');
     btnDeleteDate.textContent = 'Elimina tutti studenti di questa data';
     btnDeleteDate.classList.add('btn', 'btn-primary', 'btn-lg');
@@ -129,10 +138,9 @@ async function loadStudents() {
 
       const thead = document.createElement('thead');
 
-      // RIGA TITOLO che occupa 5 colonne (aggiunto presenza)
       const trTitle = document.createElement('tr');
       const thTitle = document.createElement('th');
-      thTitle.colSpan = 5;  // ora 5 colonne
+      thTitle.colSpan = 5;
       thTitle.textContent = `Alunni data: ${date}`;
       thTitle.style.textAlign = 'center';
       thTitle.style.padding = '12px';
@@ -141,7 +149,6 @@ async function loadStudents() {
       trTitle.appendChild(thTitle);
       thead.appendChild(trTitle);
 
-      // RIGA INTESTAZIONI (aggiunto presenza)
       const trHead = document.createElement('tr');
       ['Nome', 'Cognome', 'Classe', 'Codice', 'Presenza'].forEach(h => {
         const th = document.createElement('th');
@@ -151,7 +158,6 @@ async function loadStudents() {
         trHead.appendChild(th);
       });
       thead.appendChild(trHead);
-
       table.appendChild(thead);
 
       const tbody = document.createElement('tbody');
@@ -173,7 +179,6 @@ async function loadStudents() {
           }
         });
 
-        // Colonne: Nome, Cognome, Classe, Codice, Presenza (questa volta testo esplicito)
         const presenzaTesto = stu.presenza ? 'Presente' : 'Assente';
         [stu.nome, stu.cognome, stu.classe, CalcolaCodice(stu), presenzaTesto].forEach(val => {
           const td = document.createElement('td');
@@ -209,7 +214,6 @@ async function loadStudents() {
 
     showTable(dates[0]);
 
-    // Salvo variabili globali per download
     window._groupedStudents = grouped;
     window._selectedDate = dates[0];
     selectDate.addEventListener('change', () => {
@@ -220,42 +224,6 @@ async function loadStudents() {
     console.error("Errore durante il caricamento degli studenti:", error);
     studentContainer.textContent = "Errore durante il caricamento degli studenti.";
   }
-}
-
-// --- BOTTONE DOWNLOAD FILE EXAMPLE ---
-const downloadBtn = document.getElementById('download-example');
-if (downloadBtn) {
-  downloadBtn.addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.href = './example.xlsx';
-    link.download = 'example.xlsx';
-    link.click();
-  });
-}
-
-// --- BOTTONE DOWNLOAD XLSX STUDENTI FILTRATI ---
-if (downloadExcelBtn) {
-  downloadExcelBtn.addEventListener('click', () => {
-    const grouped = window._groupedStudents;
-    const selectedDate = window._selectedDate;
-    if (!grouped || !selectedDate || !grouped[selectedDate]) {
-      alert("Nessun dato disponibile per il download.");
-      return;
-    }
-
-    const dataToExport = grouped[selectedDate].map(s => ({
-      Nome: s.nome,
-      Cognome: s.cognome,
-      Classe: s.classe,
-      Codice: CalcolaCodice(s),
-      Presenza: s.presenza ? "Presente" : "Assente"
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Studenti");
-    XLSX.writeFile(wb, `studenti_${selectedDate}.xlsx`);
-  });
 }
 
 loadStudents();
