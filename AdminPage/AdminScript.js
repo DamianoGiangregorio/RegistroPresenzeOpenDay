@@ -226,4 +226,30 @@ async function loadStudents() {
   }
 }
 
+const downloadBtn = document.getElementById('download-example');
+// --- BOTTONE DOWNLOAD XLSX STUDENTI FILTRATI ---
+if (downloadExcelBtn) {
+  downloadExcelBtn.addEventListener('click', () => {
+    const grouped = window._groupedStudents;
+    const selectedDate = window._selectedDate;
+    if (!grouped || !selectedDate || !grouped[selectedDate]) {
+      alert("Nessun dato disponibile per il download.");
+      return;
+    }
+
+    const dataToExport = grouped[selectedDate].map(s => ({
+      Nome: s.nome,
+      Cognome: s.cognome,
+      Classe: s.classe,
+      Codice: CalcolaCodice(s),
+      Presenza: s.presenza ? "Presente" : "Assente"
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Studenti");
+    XLSX.writeFile(wb, `studenti_${selectedDate}.xlsx`);
+  });
+}
+
 loadStudents();
