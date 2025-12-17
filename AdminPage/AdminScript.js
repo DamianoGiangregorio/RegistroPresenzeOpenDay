@@ -252,4 +252,16 @@ if (downloadExcelBtn) {
   });
 }
 
+// --- BOTTONE DOWNLOAD FILE EXAMPLE ---
+const ExampledownloadBtn = document.getElementById('download-example');
+if (ExampledownloadBtn) {
+  ExampledownloadBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.href = './example.xlsx';
+    link.download = 'example.xlsx';
+    link.click();
+  });
+}
+
+
 loadStudents();
